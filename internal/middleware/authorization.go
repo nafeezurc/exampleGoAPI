@@ -27,16 +27,34 @@ func Authorization(next http.Handler) http.Handler {
 
 		// if username or token is empty, return an error
 		if username == "" || token == "" {
+			// log error to console
+			log.Error(UnAuthorizedError)
+			// then call RequestErrorHandler
+			api.RequestErrorHandler(w, UnAuthorizedError)
+			return
+		}
+		// if we have a username and token, get data from database and check if authorization token is correct
+		// instantiate a pointer to the database using an interface type
+		var database *tools.DatabaseInterface
+		database, err = tools.NewDatabase()
+		// if we get an error back, return an internal error
+		if err != nil {
+			api.InternalErrorHandler(w)
+			return
+		}
+
+		// now query the database using GetUserLoginDetails method
+		var loginDetails *tools.LoginDetails
+		loginDetails = (*database).GetUserLoginDetails(username)
+
+		// if we didn't find a client with the username or token doesn't match what we got back, return a RequestError
+		if loginDetails == nil || (token != (*loginDetails).AuthToken) {
 			log.Error(UnAuthorizedError)
 			api.RequestErrorHandler(w, UnAuthorizedError)
 			return
 		}
-	})
 
-	var database *tools.DatabaseInterface
-	database, err = tools.NewDatabase()
-	if err != nil {
-		api.InternalErrorHandler(w)
-		return
-	}
+		// end function with next.ServeHTTP function, which calls the next middleware in line
+		next.ServeHTTP(w, r)
+	})
 }

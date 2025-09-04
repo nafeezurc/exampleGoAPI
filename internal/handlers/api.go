@@ -17,6 +17,8 @@ func Handler(r *chi.Mux) {
 		// middleware for /account route
 		router.use(middleware.Authorization)
 		// created an endpoint at /account/coins
-		router.Get("/coins", GetCoinsBalance)
+		// in order to use GetCoinsBalance in the above Get method
+		// we define it such that it takes in a response writer and a pointer to the request as parameters
+		router.Get("/coins", GetCoinBalance)
 	})
 }
