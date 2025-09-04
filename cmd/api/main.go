@@ -14,7 +14,7 @@ func main() {
 	// creating error logger
 	log.SetReportCaller(true)
 	// creating a mux type variable, kind of like a struct
-	var r *chi.Mux = chi.NewRouter
+	var r *chi.Mux = chi.NewRouter()
 	// set up router i.e. endpoint definitions we want
 	handlers.Handler(r)
 
